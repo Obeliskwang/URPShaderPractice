@@ -123,6 +123,34 @@ Shared/
 └── Scripts/      通用相机控制、UI 展示脚本等
 ```
 
+## 资产命名规范
+
+目录负责区分 demo 模块和资产类型，文件名只表达具体内容、必要语义和变体。不要重复添加 `Shader`、`Material`、`Mat`、`Mesh`、`Prefab`、`Scene` 等类型字段。
+
+- 使用英文、数字和 PascalCase，不使用空格、中文或连字符。
+- 序号统一使用两位数字，例如 `01`、`02`。
+- 不使用 `New`、`Final`、`Latest`、`Copy` 等临时名称。
+- 贴图必须保留用途语义；Grass 贴图以 `Grass` 为主体，例如 `Grass_BaseColor.png`、`Grass_Normal.png`、`Grass_WindNoise01.png`。
+- 场景使用 `<Demo><用途>.unity`，不加下划线，例如 `GrassDemo.unity`、`GrassPerformance.unity`、`GrassDebug.unity`。
+- C# 文件名必须与类名一致，例如 `GrassWindController.cs`。
+- `Shared/` 内资产不再添加 `Shared` 前缀。
+- ShaderLab 内部路径必须包含项目和模块，例如 `Shader "URPShaderPractice/Grass/WindBlade"`。
+- 资产与对应 `.meta` 必须一起提交；不要手动修改 GUID。
+
+示例：
+
+```text
+Shaders/WindBlade.shader
+Shaders/WindCommon.hlsl
+Materials/WindBlade.mat
+Materials/Grass_BaseColor.png
+Materials/Grass_Normal.png
+Meshes/Blade_LOD0.fbx
+Prefabs/WindPatch.prefab
+Scenes/GrassDemo.unity
+Scripts/GrassWindController.cs
+```
+
 ## 新增 Demo 流程
 
 1. 复制 `Assets/Collection/Template/`。
