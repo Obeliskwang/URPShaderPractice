@@ -347,7 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeOfDay: 9
   autoPlay: 1
-  dayDurationSeconds: 30
+  dayDurationSeconds: 15
   loop: 1
   directionalLight: {fileID: 6}
   sunAzimuth: 0

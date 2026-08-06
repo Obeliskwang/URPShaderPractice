@@ -76,7 +76,8 @@ shader 或脚本的核心实现思路：
 ```text
 Template/
 ├── Shaders/      放 shader、hlsl、shadergraph 等源码
-├── Materials/    放材质、贴图、噪声图、LUT 等展示资源
+├── Materials/    放材质、LUT 等展示资源
+├── Textures/     放贴图、噪声图等资源
 ├── Meshes/       放该 demo 专属模型
 ├── Prefabs/      放该 demo 专属预制体
 ├── Scenes/       放展示场景

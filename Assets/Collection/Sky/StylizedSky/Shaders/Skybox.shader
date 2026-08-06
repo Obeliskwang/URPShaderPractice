@@ -87,8 +87,8 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
             TEXTURE2D(_Distort);
             TEXTURE2D(_SecNoise);
 
-            // 三张纹理使用相同�?Repeat/Bilinear 采样状态，节省 sampler�?
-            // 基础版先使用各纹理的同名 sampler，确�?Unity D3D11 稳定识别绑定�?
+            // All noise textures use their imported Repeat/Bilinear sampler states.
+            // Keeping one sampler per texture is required for stable D3D11 bindings.
             SAMPLER(sampler_BaseNoise);
             SAMPLER(sampler_Distort);
             SAMPLER(sampler_SecNoise);
@@ -169,7 +169,7 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                 float2 skyUV = viewDirectionWS.xz / safeStarProjectionY;
                 float2 starUV = skyUV * _Stars_ST.xy + _Stars_ST.zw;
                 
-                // 避免投影 UV 在地平线 y=0 附近变成无穷大�?
+                // Keep cloud coordinates finite near the horizon.
                 float safeSkyY = max(viewDirectionWS.y, 0.05);
                 float2 cloudUV = viewDirectionWS.xz / safeSkyY;
                 
@@ -179,18 +179,17 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                 // 星星纹理采样
                 half3 stars = SAMPLE_TEXTURE2D(_Stars, sampler_Stars, starUV).rgb;
                 
-                // 云纹理采�?
-                // distort只产�?UV 偏移，不直接成为云遮罩�?
+                // The distortion texture offsets the cloud UVs; it is not a cloud mask.
                 float2 distortUV = (cloudUV - scrollOffset * 0.35) * (_CloudScale * 0.55);
                 half distortNoise = SAMPLE_TEXTURE2D(_Distort, sampler_Distort, distortUV).r;
 
-                // 0..1 转换�?-1..1，避�?UV 只朝正方向偏移�?
+                // Convert 0..1 noise to a signed -1..1 displacement.
                 half signedDistortion = distortNoise * 2.0h - 1.0h;
 
                 float2 distortionDirection = normalize(float2(1.0, 0.63));
                 float2 distortionOffset = distortionDirection * signedDistortion * _CloudDistortion;
 
-                // 基础贴图和细节贴图（负责侵蚀主体�?
+                // The base and detail textures form the cloud-density field.
                 half baseNoise = SAMPLE_TEXTURE2D(_BaseNoise, sampler_BaseNoise, (cloudUV - scrollOffset) * _CloudScale + distortionOffset).r;
                 float2 secondaryUV = (cloudUV - scrollOffset * 0.83) * (_CloudScale * _CloudDetailScale) - distortionOffset * 0.65;
                 half secondaryNoise = SAMPLE_TEXTURE2D(_SecNoise, sampler_SecNoise, secondaryUV).r;
@@ -199,7 +198,7 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                 
                 
                 // 控制范围
-                // 地平线范�?
+                // Horizon mask.
                 float horizon = abs(viewDirectionWS.y);
 
                 // 云范围，只出现在天空上半部分
@@ -267,19 +266,19 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                 half sunDirectionMask = pow( sunDirectionAlignment,   _HorizonSunFocus  );
                 half horizonGlowMask =  horizonMask * sunNearHorizon * sunDirectionMask;
            
-                 // 云遮�?
+                // Cloud coverage.
                 half clouds = smoothstep(_CloudCutoff, _CloudCutoff + max(_CloudFuzziness, 0.001h), cloudDensity);
                 clouds *= smoothstep(0.0h, 0.12h, viewDirectionWS.y);
                 
                 // 颜色渐变
-                // 昼渐�?
+                // Day gradient.
                 half3 gradientDay = lerp(
                     _DayBottomColor.rgb,
                     _DayTopColor.rgb,
                     verticalGradient
                 );
                 
-                // 夜渐�?
+                // Night gradient.
                 half3 gradientNight = lerp(
                     _NightBottomColor.rgb,
                     _NightTopColor.rgb,
@@ -300,7 +299,7 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                     horizonGlowMask
                 );
 
-                // 昼夜云颜�?
+                // Day and night cloud colors.
                 half3 cloudsColoredDay = lerp(
                     _CloudColorDayEdge.rgb,
                     _CloudColorDayMain.rgb,
@@ -318,7 +317,7 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                     cloudsColoredDay,
                     dayFactor
                 );
-                // 显式展开 lerp，避免不同平台对 half3/half 重载匹配产生歧义�?
+                // Start compositing with the sky base.
                 // 1. 天空底色
                half3 color = horizonGradient;
                color += stars * starVisibility;
@@ -329,7 +328,7 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
                 
                 half cloudsNegative = 1.0h - clouds;
 
-                // 云覆盖下面已经合成好的天空、星星、太阳和月亮�?
+                // Clouds cover the already-composited sky, stars, sun, and moon.
                 color = color * cloudsNegative + cloudsColored;
 
                 // 测试月相变化
@@ -344,4 +343,3 @@ Shader "URPShaderPractice/Sky/StylizedSky/Skybox"
 
     Fallback Off
 }
-
