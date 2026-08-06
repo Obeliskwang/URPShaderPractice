@@ -40,11 +40,11 @@ URPShaderPractice/
 
 ### Scanline
 
-<img src="E:\Projects\Unity\URPShaderPractice\images\RecorderClip_010.gif" alt="RecorderClip_010" style="zoom: 50%;" />
+<img src="E:\Projects\Unity\URPShaderPractice\images\scanline.gif" style="zoom: 50%;" />
 
 ### Stylized Sky
 
-<img src="E:\Projects\Unity\URPShaderPractice\images\QQ202686-212942-HD.gif" style="zoom:150%;" />
+<img src="E:\Projects\Unity\URPShaderPractice\images\stylizedsky.gif" style="zoom:150%;" />
 
 ### Water
 
